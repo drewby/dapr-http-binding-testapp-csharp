@@ -28,7 +28,7 @@ Sent Traceparent: 00-39fa28e206037ae76349dd0154aec9db-f446d05a9b6fa499-00
 Received Traceparent: 00-39fa28e206037ae76349dd0154aec9db-07e891d91fb093ee-01, Tracestate: 
 ```
 
-We want to see the service return the return the same `traceid` but a different `spanid` (representing the span from `daprd`). 
+We want to see the service return the return the same `traceid` but a different `spanid` (representing the span from `daprd`).  Note that in current versions of Dpar (~v1.9) the HTTP Binding does not propogate these headers. You'll need a build that includes the propogation logic (likely v1.10).
 
 Traceparent format: `version - traceid - spanid - traceflags`
 
