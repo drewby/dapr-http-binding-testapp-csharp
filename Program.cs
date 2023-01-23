@@ -23,9 +23,10 @@ app.UseSwagger();
 
 app.UseSwaggerUI();
 
-app.MapPost("Send", async () =>
+app.MapGet("Send", async () =>
 {
-    app.Logger.LogInformation($"Sending a request to Binding. Traceparent: {Activity.Current!.Id}");
+    var traceparent = Activity.Current!.Id;
+    app.Logger.LogInformation($"Send to Binding. Traceparent: {traceparent}");
 
     var bindingData = new
     {
@@ -43,15 +44,19 @@ app.MapPost("Send", async () =>
         Content = new StringContent(JsonSerializer.Serialize(bindingData, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }), Encoding.UTF8, MediaTypeNames.Application.Json),
     };
 
-    request.Headers.Add("traceparent", Activity.Current.Id);
+    request.Headers.Add("Traceparent", traceparent);
 
     HttpClient client = new HttpClient();
     var response = await client.SendAsync(request);
+    var body = await response.Content.ReadAsStringAsync();
+
+    return $"Sent Traceparent: {traceparent}\nReceived {body}\n";
 });
 
-app.MapPost("Receive", ([FromHeader] string? traceparent) =>
+app.MapPost("Receive", ([FromHeader] string? traceparent, [FromHeader] string? tracestate) =>
 {
-    app.Logger.LogInformation($"Received request. Traceparent: {traceparent}");
+    app.Logger.LogInformation($"Received. Traceparent: {traceparent}, Tracestate: {tracestate}");
+    return $"Traceparent: {traceparent}, Tracestate: {tracestate}";
 });
 
 app.Run();
